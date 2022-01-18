@@ -280,7 +280,7 @@ private:
     auto tracking_number = tracker.get_and_update_tracking_number();
     unsigned long pub_time_us = 0;
 
-// #define USE_LOANED
+#define USE_LOANED
 
 #ifdef USE_LOANED
     std::allocator<void> allocator;

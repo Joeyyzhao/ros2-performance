@@ -21,6 +21,9 @@
 #include "performance_test/ros2/executors.hpp"
 #include "performance_test/ros2/events_logger.hpp"
 
+#include <rclcpp/experimental/buffers/lock_free_events_queue.hpp>
+using LockFreeQueue = rclcpp::experimental::buffers::LockFreeEventsQueue;
+
 void log_total_stats(unsigned long int total_received,
                     unsigned long int total_lost,
                     unsigned long int total_late,
@@ -98,11 +101,14 @@ public:
           ex.name = ex.name + "_" + node->get_name();
       } else {
           auto ex = NamedExecutor();
-
+          auto queue = std::make_unique<LockFreeQueue>();
           switch (_system_executor)
           {
               case SINGLE_THREADED_EXECUTOR:
                   ex.executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+                  break;
+              case EVENTS_EXECUTOR:
+                  ex.executor = std::make_shared<rclcpp::executors::EventsExecutor>(std::move(queue));
                   break;
               case STATIC_SINGLE_THREADED_EXECUTOR:
               default:
